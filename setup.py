@@ -8,7 +8,7 @@ version = '1.1.3'
 
 setup(
     name='steampyplus',
-    packages=['steampyplus', 'test', 'examples', ],
+    packages=['steampy', 'test', 'examples', ],
     version=version,
     description='A Steam lib for trade automation',
     author='kurt',
