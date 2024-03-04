@@ -139,7 +139,7 @@ class SteamMarket:
         currency: Currency = Currency.USD,
     ) -> dict:
         data = {
-            'sessionid': self._session_id,
+            'sessionid': self._session.cookies.get_dict("steamcommunity.com")['sessionid'],
             'currency': currency.value,
             'appid': game.app_id,
             'market_hash_name': market_name,
@@ -206,7 +206,7 @@ class SteamMarket:
 
     @login_required
     def cancel_buy_order(self, buy_order_id) -> dict:
-        data = {'sessionid': self._session_id, 'buy_orderid': buy_order_id}
+        data = {'sessionid': self._session.cookies.get_dict("steamcommunity.com")['sessionid'], 'buy_orderid': buy_order_id}
         headers = {'Referer': f'{SteamUrl.COMMUNITY_URL}/market'}
         response = self._session.post(f'{SteamUrl.COMMUNITY_URL}/market/cancelbuyorder/', data, headers=headers).json()
 
