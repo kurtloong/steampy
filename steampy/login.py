@@ -8,7 +8,6 @@ from requests import Session, Response
 from steampy import guard
 from steampy.models import SteamUrl
 from steampy.exceptions import InvalidCredentials, CaptchaRequired, ApiException
-from time import sleep
 
 
 class LoginExecutor:
@@ -38,7 +37,6 @@ class LoginExecutor:
     def login(self) -> Session:
         login_response = self._send_login_request()
         if len(login_response.json()['response']) == 0:
-            sleep(30)
             raise ApiException('No response received from Steam API. Please try again later.')
         self._check_for_captcha(login_response)
         self._update_steam_guard(login_response)
@@ -59,18 +57,14 @@ class LoginExecutor:
         store_domain = SteamUrl.STORE_URL[8:]
         community_cookie_dic = self.session.cookies.get_dict(domain = community_domain)
         store_cookie_dic = self.session.cookies.get_dict(domain = store_domain)
-        for name in ('steamLoginSecure', 'sessionid', 'steamRefresh_steam', 'steamCountry'):
+        for name in ['steamLoginSecure', 'sessionid', 'steamRefresh_steam', 'steamCountry']:
             cookie = self.session.cookies.get_dict()[name]
-            if name in ["steamLoginSecure"]:
-                store_cookie = self._create_cookie(name, store_cookie_dic[name], store_domain)
-            else:
-                store_cookie = self._create_cookie(name, cookie, store_domain)
-
-            if name in ["sessionid", "steamLoginSecure"]:
-                community_cookie = self._create_cookie(name, community_cookie_dic[name], community_domain)
+            if name == 'steamLoginSecure':
+                community_cookie = self._create_cookie(name, community_cookie_dic['steamLoginSecure'], community_domain)
+                store_cookie = self._create_cookie(name, store_cookie_dic['steamLoginSecure'], store_domain)
             else:
                 community_cookie = self._create_cookie(name, cookie, community_domain)
-
+                store_cookie = self._create_cookie(name, cookie, store_domain)
             self.session.cookies.set(**community_cookie)
             self.session.cookies.set(**store_cookie)
 
